@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEIZ.IO - Logic Encryption</title>
+    <style>
+        :root {
+            --bg: #000000;
+            --main: #ffffff;
+            --line: #1a1a1a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; cursor: crosshair; }
+        body {
+            background-color: var(--bg);
+            color: var(--main);
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .ui {
+            width: 1100px;
+            height: 750px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--line);
+        }
+        .header {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--line);
+        }
+        .header h1 {
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+        }
+        .main-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--line);
+            gap: 1px;
+        }
+        .input-box { flex: 2; background: var(--bg); display: flex; }
+        .output-boxes { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
+        textarea {
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            color: var(--main);
+            border: none;
+            padding: 20px;
+            font-size: 11px;
+            resize: none;
+            outline: none;
+            line-height: 1.6;
+        }
+        .label {
+            position: absolute;
+            font-size: 8px;
+            color: #333;
+            text-transform: uppercase;
+            padding: 5px 10px;
+            pointer-events: none;
+        }
+        .footer {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid var(--line);
+        }
+        button {
+            background: var(--main);
+            color: var(--bg);
+            border: none;
+            padding: 14px 100px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            transition: 0.2s;
+        }
+        button:hover { filter: invert(1); }
+    </style>
+</head>
+<body>
+
+    <div class="ui">
+        <div class="header">
+            <h1>NEIZ.IO</h1>
+            <span style="font-size: 9px; color: #444;">PRO BUILDER V4</span>
+        </div>
+        
+        <div class="main-area">
+            <div class="input-box" style="position: relative;">
+                <div class="label">Source Code</div>
+                <textarea id="raw" placeholder="-- Input script"></textarea>
+            </div>
+            
+            <div class="output-boxes">
+                <div style="position: relative; background: var(--bg);">
+                    <div class="label">Step 1: The Loader (Use this in Roblox)</div>
+                    <textarea id="loader" readonly placeholder="-- Loader String"></textarea>
+                </div>
+                <div style="position: relative; background: var(--bg);">
+                    <div class="label">Step 2: File Content (Save this to your host)</div>
+                    <textarea id="content" readonly placeholder="-- Obfuscated File Data"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <button onclick="build()">Secure Build</button>
+        </div>
+    </div>
+
+    <script>
+        const v = () => '_' + Math.random().toString(36).substring(2, 12).toUpperCase();
+        
+        function build() {
+            const input = document.getElementById('raw').value;
+            if(!input) return;
+
+            let seed = Math.floor(Math.random() * 100) + 50;
+            let salt = Math.floor(Math.random() * 15) + 2;
+            let bytecode = [];
+            let currentKey = seed;
+
+            for(let i=0; i<input.length; i++) {
+                let char = input.charCodeAt(i);
+                bytecode.push((char ^ currentKey) + salt);
+                currentKey = (currentKey + salt) % 256;
+            }
+
+            const data = bytecode.join(',');
+            const a = v(); const b = v(); const c = v(); const d = v(); const e = v();
+
+            const vmCore = `local ${a}={${data}} local ${b}=${seed} local ${c}=${salt} local ${d}="" for i=1,#${a} do local n=${a}[i] ${d}=${d}..string.char(bit32.bxor(n-${c},${b})) ${b}=(${b}+${c})%256 end local ${e}=loadstring or load return ${e}(${d})()`;
+
+            const loaderId = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10)).toUpperCase();
+            
+            document.getElementById('loader').value = `loadstring(game:HttpGet("https://neiz.io/v4/loader/${loaderId}.lua"))()`;
+            document.getElementById('content').value = vmCore;
+        }
+    </script>
+</body>
+</html>
