@@ -3,42 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEIZ.IO - VM Protection</title>
+    <title>NEIZ.IO - Absolute Armor V13</title>
     <style>
         :root { --bg: #000; --main: #fff; --line: #1a1a1a; }
         body { background: var(--bg); color: var(--main); font-family: 'Inter', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; overflow: hidden; }
-        .ui { width: 1100px; height: 750px; border: 1px solid var(--line); display: flex; flex-direction: column; background: #000; }
-        .header { padding: 20px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
-        .main { flex: 1; display: flex; flex-direction: column; background: var(--line); gap: 1px; }
-        .input-box { flex: 1.5; background: #000; position: relative; }
-        .output-row { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; }
-        textarea { width: 100%; height: 100%; background: #000; color: #fff; border: none; padding: 25px; font-family: 'JetBrains Mono', monospace; font-size: 11px; resize: none; outline: none; box-sizing: border-box; }
-        .label { position: absolute; top: 5px; left: 10px; font-size: 8px; color: #444; text-transform: uppercase; z-index: 10; letter-spacing: 1px; }
+        .ui { width: 900px; height: 600px; border: 1px solid var(--line); display: flex; flex-direction: column; background: #000; }
+        .header { padding: 15px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+        .main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; background: var(--line); gap: 1px; }
+        textarea { width: 100%; height: 100%; background: #000; color: #fff; border: none; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 10px; resize: none; outline: none; box-sizing: border-box; line-height: 1.5; }
         .footer { padding: 20px; border-top: 1px solid var(--line); text-align: center; }
-        button { background: #fff; color: #000; border: none; padding: 12px 80px; font-weight: 900; font-size: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: 0.2s; }
-        button:hover { letter-spacing: 4px; background: #ccc; }
+        button { background: #fff; color: #000; border: none; padding: 10px 80px; font-weight: 900; font-size: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        button:hover { background: #ccc; letter-spacing: 4px; }
+        .label { position: absolute; padding: 5px 10px; font-size: 8px; color: #333; text-transform: uppercase; letter-spacing: 2px; z-index: 5; }
     </style>
 </head>
 <body>
     <div class="ui">
         <div class="header">
-            <div style="letter-spacing: 10px; font-weight: 900;">NEIZ.IO</div>
-            <div style="color: #444; font-size: 9px; font-weight: bold;">VIRTUAL MACHINE EMULATION [V4.0.1]</div>
+            <div style="letter-spacing: 8px; font-weight: 900;">NEIZ.IO</div>
+            <div style="color: #444; font-size: 8px;">[V13_CONTENT_DEPENDENT_VM]</div>
         </div>
         <div class="main">
-            <div class="input-box">
-                <div class="label">Input Source</div>
-                <textarea id="raw" placeholder="-- Paste code here..."></textarea>
+            <div style="position: relative; background: #000;">
+                <div class="label">Input Logic</div>
+                <textarea id="raw" placeholder="-- Paste script here..."></textarea>
             </div>
-            <div class="output-row">
-                <div style="position: relative; background: #000;">
-                    <div class="label">Roblox Loader</div>
-                    <textarea id="loader" readonly placeholder="-- Loader string will appear here"></textarea>
-                </div>
-                <div style="position: relative; background: #000;">
-                    <div class="label">GitHub File Content (VM)</div>
-                    <textarea id="content" readonly placeholder="-- Obfuscated logic will appear here"></textarea>
-                </div>
+            <div style="position: relative; background: #000;">
+                <div class="label">Secure VM Output</div>
+                <textarea id="out" readonly placeholder="-- Obfuscated result..."></textarea>
             </div>
         </div>
         <div class="footer">
@@ -47,64 +39,29 @@
     </div>
 
     <script>
-        const v = () => '_' + Math.random().toString(36).substring(2, 12).toUpperCase();
         function build() {
             const input = document.getElementById('raw').value;
             if(!input) return;
 
-            // VM Configuration
-            let seed = Math.floor(Math.random() * 1000) + 500;
-            let salt = Math.floor(Math.random() * 20) + 5;
+            let seed = Math.floor(Math.random() * 150) + 50;
             let currentKey = seed;
-            
-            // Generate Virtual Bytecode
             let instructions = [];
+
             for(let i=0; i<input.length; i++) {
-                let char = input.charCodeAt(i);
-                // The encryption key changes based on a mathematical formula for EVERY byte
-                instructions.push((char ^ currentKey) + salt);
-                currentKey = Math.floor((currentKey + salt) % 256);
+                let charCode = input.charCodeAt(i);
+                // Encryption: Byte = (Char + currentKey) % 256
+                let encrypted = (charCode + currentKey) % 256;
+                instructions.push(encrypted);
+                // Update Key based on the ACTUAL character (Content Dependent)
+                currentKey = (currentKey + charCode + i) % 256;
             }
 
             const data = instructions.join(',');
             
-            // Randomize VM variable names (Luraph Style)
-            const VM_TABLE = v();
-            const VM_PC = v();
-            const VM_RES = v();
-            const VM_KEY = v();
-            const VM_DISPATCH = v();
+            // Minified, Content-Dependent Decryption Loop
+            const vm = `task.spawn(function()local d,k,r,c={${data}},${seed},{},0 for i=1,#d do c=(d[i]-k)%256 r[i]=string.char(c)k=(k+c+i-1)%256 end local f=loadstring(table.concat(r))setfenv(f,getfenv())f()end)`;
 
-            // The VM Logic that goes on GitHub
-            // It simulates a processor executing instructions
-            const vmCode = `--[[ NEIZ.IO VM PROTECT ]]
-local ${VM_TABLE} = {${data}}
-local ${VM_KEY} = ${seed}
-local ${VM_PC} = 1
-local ${VM_RES} = ""
-local function ${VM_DISPATCH}(n)
-    local d = string.char(bit32.bxor(n - ${salt}, ${VM_KEY}))
-    ${VM_KEY} = (${VM_KEY} + ${salt}) % 256
-    return d
-end
-while ${VM_PC} <= #${VM_TABLE} do
-    ${VM_RES} = ${VM_RES} .. ${VM_DISPATCH}(${VM_TABLE}[${VM_PC}])
-    ${VM_PC} = ${VM_PC} + 1
-end
-local _exec = loadstring or load
-local _run, _err = _exec(${VM_RES})
-if _run then 
-    _run() 
-else 
-    error("VM_CRITICAL_REJECT: " .. tostring(_err)) 
-end
-${VM_RES} = nil
-${VM_TABLE} = nil`;
-
-            const id = (Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10)).toUpperCase();
-            
-            document.getElementById('loader').value = `loadstring(game:HttpGet("https://neiz-scripts.vercel.app/v4/loader/${id}.lua"))()`;
-            document.getElementById('content').value = vmCode;
+            document.getElementById('out').value = vm;
         }
     </script>
 </body>
